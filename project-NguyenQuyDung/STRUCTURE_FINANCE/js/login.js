@@ -54,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!valid) return;
 
     if (!checkAuth(email, password)) {
-      showError(emailInput, errorEmail, "Email hoặc mật khẩu không đúng");
       showError(passwordInput, errorPassword, "Email hoặc mật khẩu không đúng");
       return;
     }

@@ -8,13 +8,6 @@
 body {
     background: #F2F2F2;
 }
-.menu-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Khoảng cách giữa các nút */
-    width: 260px;
-    flex-shrink: 0; /* không bị co lại */
-}
 /* Style chung cho các nút */
 .menu-btn {
     display: flex;
@@ -77,7 +70,7 @@ body {
     position: fixed;
     top: 90px;      /* cách header */
     left: 30px;
-    width: 260px;
+    width: 200px;
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -105,7 +98,7 @@ body {
 
 .account-btn {
     color: white;
-    font-weight: 600;
+    font-weight: 400;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -149,11 +142,11 @@ body {
 
 /* CONTENT */
 .section {
-    width: 900px;
+    width: 600px;
+    margin: 0 auto;
 }
 /* Banner */
 .section1 {
-    margin-top: 25px;
     background: #4F46E5;
     color: white;
     padding: 25px;
@@ -261,7 +254,7 @@ select option {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 8px;
     padding: 15px;
     border: 1px solid #E5E7EB;
     border-radius: 12px;
@@ -286,22 +279,25 @@ select option {
 
 /* Text */
 .card-text h4 {
-    font-size: 16px;
+    font-size: 13px;
     margin-bottom: 5px;
+    color: #000000;
 }
 
 .card-text p {
     color: #9CA3AF;
+    font-size: 12px;
+    text-align: left;
 }
 
 /* Action icons */
 .card-action {
     position: absolute;
     top: 8px;
-    right: 10px;
+    right: 5px;
     display: flex;
     flex-direction: column;
     line-height: 10px;
-    gap: 8px;
+    gap: 5px;
     cursor: pointer;
 }

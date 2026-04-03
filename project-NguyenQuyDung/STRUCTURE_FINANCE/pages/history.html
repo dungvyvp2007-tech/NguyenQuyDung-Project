@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tài chính cá nhân K24_Rikkei</title>
+      <script>
+      // Kiểm tra ngay lập tức trước khi render giao diện
+      if (localStorage.getItem("isLoggedIn") !== "true") {
+        window.location.href = "./login.html";
+      }
+    </script>
+    <title>Tài chính cá nhân K25_Rikkei</title>
     <link rel="stylesheet" href="../css/history.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-      rel="stylesheet"
-    />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
@@ -22,7 +25,7 @@
   <body>
     <div class="header">
       <div class="header-left">
-        <span>📒 Tài Chính Cá Nhân K24_Rikkei</span>
+        <span>📒 Tài Chính Cá Nhân K25_Rikkei</span>
       </div>
       <div class="header-right">
         <div class="account-dropdown" id="accountDropdown">
@@ -237,6 +240,6 @@
         </div>
       </div>
     </div>
-    <script src="../js/home.js"></script>
+    <script src="../js/history.js"></script>
   </body>
 </html>
