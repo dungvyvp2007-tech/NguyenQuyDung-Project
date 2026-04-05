@@ -257,23 +257,46 @@ body {
 }
 
 /* Table Styles */
-.history-table {
+.history-table,
+.stats-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
 }
 
-.history-table th {
+.history-table th,
+.stats-table th {
     text-align: left;
     padding: 12px 8px;
     border-bottom: 2px solid #edf2f7;
     color: #4a5568;
 }
 
-.history-table td {
+.history-table td,
+.stats-table td {
     padding: 12px 8px;
     border-bottom: 1px solid #edf2f7;
 }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 88px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-achieved {
+    background: #daf5e5;
+    color: #15803d;
+}
+
+.badge-not-achieved {
+    background: #ffe4e6;
+    color: #b91c1c;
 
 .btn-icon {
     background: none;

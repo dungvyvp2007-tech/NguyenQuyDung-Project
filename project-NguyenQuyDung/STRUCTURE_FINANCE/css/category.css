@@ -184,6 +184,14 @@ h1 {
     font-size: 24px;
 }
 
+.section3 input{
+    padding: 10px;
+    margin: 8px 0;
+    width: 250px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: white;
+}
 #date{
     border: 1px solid #DEE2E6;
     padding: 5px;
@@ -220,6 +228,7 @@ select {
 select option {
     color: black;
 }
+
 
 .section4-form select,
 .section4-form input {

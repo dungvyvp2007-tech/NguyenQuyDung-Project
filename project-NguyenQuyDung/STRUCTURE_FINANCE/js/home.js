@@ -1,8 +1,30 @@
-// 1. Các hàm hỗ trợ lấy dữ liệu dùng chung
+// --- 1. CÁC HÀM HỖ TRỢ DÙNG CHUNG ---
+const getStorageKey = (key) => {
+  const authUser = JSON.parse(localStorage.getItem("authUser"));
+  const userId = authUser ? authUser.id : "guest";
+  return `user_${userId}_${key}`;
+};
+
 const getAuthUser = () => JSON.parse(localStorage.getItem("authUser"));
 const getAllUsers = () => JSON.parse(localStorage.getItem("users")) || [];
 
-// 2. Hàm tính toán và hiển thị tiền
+// --- TOAST HỖ TRỢ THÔNG BÁO ---
+const showToast = (message, type = "success", duration = 1800) => {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  toast.classList.remove("hidden");
+  toast.classList.remove("success", "error");
+  toast.classList.add("show", type);
+  toast.textContent = message;
+
+  setTimeout(() => {
+    toast.classList.remove("show", type);
+    toast.classList.add("hidden");
+  }, duration);
+};
+
+// --- 2. HÀM TÍNH TOÁN VÀ HIỂN THỊ TIỀN ---
 function updateFinancialStatus() {
   const monthPicker = document.getElementById("monthPicker");
   const moneyDisplay = document.getElementById("money");
@@ -13,27 +35,39 @@ function updateFinancialStatus() {
   const selectedMonth = monthPicker.value;
   if (!selectedMonth) return;
 
-  const allBudgets = JSON.parse(localStorage.getItem("monthlyBudgets")) || {};
+  const allBudgets =
+    JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || {};
   const totalBudget = parseFloat(allBudgets[selectedMonth] || 0);
 
   if (budgetInput) budgetInput.value = totalBudget > 0 ? totalBudget : "";
 
   const allMonthlyCategories =
-    JSON.parse(localStorage.getItem("monthlyCategories")) || {};
-  const categoriesInMonth = allMonthlyCategories[selectedMonth] || [];
-
-  const totalSpent = categoriesInMonth.reduce(
-    (sum, item) => sum + parseFloat(item.budget || 0),
-    0,
+    JSON.parse(localStorage.getItem(getStorageKey("monthlyCategories"))) || [];
+  const monthKey = `${selectedMonth}-30`;
+  const monthEntry = allMonthlyCategories.find(
+    (item) => item.month === monthKey,
   );
 
-  const remaining = totalBudget - totalSpent;
+  let totalSpent = 0;
+  if (monthEntry && monthEntry.categories) {
+    totalSpent = monthEntry.categories.reduce(
+      (sum, item) => sum + parseFloat(item.budget || 0),
+      0,
+    );
+  }
 
+  const remaining = totalBudget - totalSpent;
   moneyDisplay.textContent = remaining.toLocaleString("vi-VN") + " VND";
   moneyDisplay.style.color = remaining < 0 ? "#ef4444" : "#22C55E";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // --- KHAI BÁO BIẾN MODAL (Đưa lên đầu để tránh lỗi) ---
+  const infoModal = document.getElementById("infoModal");
+  const passModal = document.getElementById("passModal");
+  const editInfoForm = document.getElementById("editInfoForm");
+  const editPassForm = document.getElementById("editPassForm");
+
   // --- KHỞI TẠO THÔNG TIN NGƯỜI DÙNG ---
   const authUser = getAuthUser();
   if (authUser) {
@@ -52,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   updateFinancialStatus();
 
-  // --- XỬ LÝ SỰ KIỆN MENU TÀI KHOẢN (Logout Dropdown) ---
+  // --- XỬ LÝ MENU TÀI KHOẢN & LOGOUT ---
   const accountBtn = document.querySelector(".account-btn");
   const logoutMenu = document.getElementById("logoutMenu");
   if (accountBtn && logoutMenu) {
@@ -70,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     logoutBtn.onclick = () => {
       if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("authUser");
         window.location.href = "./login.html";
       }
     };
@@ -86,9 +121,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.getElementById("budgetWarning").style.display = "none";
       const allBudgets =
-        JSON.parse(localStorage.getItem("monthlyBudgets")) || {};
+        JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || {};
       allBudgets[monthPicker.value] = amount;
-      localStorage.setItem("monthlyBudgets", JSON.stringify(allBudgets));
+      localStorage.setItem(
+        getStorageKey("monthlyBudgets"),
+        JSON.stringify(allBudgets),
+      );
 
       document.getElementById("budgetSuccess").style.display = "block";
       setTimeout(() => {
@@ -102,10 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     monthPicker.onchange = () => updateFinancialStatus();
   }
 
-  // --- 3. CHANGE INFORMATION ---
-  const editInfoForm = document.getElementById("editInfoForm");
-  const infoModal = document.getElementById("infoModal");
-
+  // --- 3. CHANGE INFORMATION (GIỮ NGUYÊN LOGIC CỦA BẠN) ---
   if (editInfoForm) {
     editInfoForm.onsubmit = (e) => {
       e.preventDefault();
@@ -129,68 +164,82 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("users", JSON.stringify(users));
       }
 
-      alert("Cập nhật thông tin thành công!");
+      showToast("Cập nhật thông tin thành công!", "success");
       infoModal.style.display = "none";
-      location.reload();
+      setTimeout(() => location.reload(), 1200);
     };
   }
 
-  // --- 4. CHANGE PASSWORD ---
-  const editPassForm = document.getElementById("editPassForm");
+  // --- 4. CHANGE PASSWORD (ĐÃ TỐI ƯU SỬA LỖI) ---
+  // --- 4. CHANGE PASSWORD (Cập nhật có thông báo) ---
   if (editPassForm) {
     editPassForm.onsubmit = (e) => {
       e.preventDefault();
 
-      const auth = getAuthUser(); // Người đang đăng nhập (chỉ có 4 thông tin)
-      const users = getAllUsers(); // Danh sách toàn bộ user (có chứa mật khẩu)
+      const auth = getAuthUser();
+      const users = getAllUsers();
 
-      // Tìm tài khoản đầy đủ trong danh sách users dựa trên Email hoặc ID
-      const currentUserFull = users.find((u) => u.email === auth.email);
+      // 1. Tìm user trong mảng users tổng
+      const userIndex = users.findIndex(
+        (u) => u.id === auth.id || u.email === auth.email,
+      );
 
+      if (userIndex === -1) {
+        alert("Lỗi: Không tìm thấy tài khoản người dùng trên hệ thống!");
+        return;
+      }
+
+      const currentUser = users[userIndex];
       const currentPassInput = document.getElementById("currentPass").value;
       const newPass = document.getElementById("newPass").value;
       const confirmPass = document.getElementById("confirmPass").value;
 
-      // 1. Kiểm tra mật khẩu cũ (Lấy từ currentUserFull)
-      if (!currentUserFull || currentPassInput !== currentUserFull.password) {
-        alert("Mật khẩu cũ không chính xác!");
+      // 2. Kiểm tra các điều kiện mật khẩu
+      if (currentPassInput !== currentUser.password) {
+        alert("Mật khẩu cũ không chính xác. Vui lòng kiểm tra lại!");
         return;
       }
 
-      // 2. Kiểm tra khớp mật khẩu mới
       if (newPass !== confirmPass) {
         alert("Xác nhận mật khẩu mới không khớp!");
         return;
       }
 
       if (newPass.length < 6) {
-        alert("Mật khẩu mới phải từ 6 ký tự trở lên!");
+        alert("Mật khẩu mới phải có ít nhất 6 ký tự!");
         return;
       }
 
-      // 3. Cập nhật mật khẩu mới vào danh sách users tổng
-      const userIndex = users.findIndex((u) => u.email === auth.email);
-      if (userIndex !== -1) {
+      // 3. Thực hiện lưu dữ liệu mới
+      try {
+        // Cập nhật mảng tổng
         users[userIndex].password = newPass;
         localStorage.setItem("users", JSON.stringify(users));
 
-        // Cập nhật cả vào authUser nếu bạn muốn lưu mật khẩu ở đó (tùy chọn)
-        // auth.password = newPass;
-        // localStorage.setItem("authUser", JSON.stringify(auth));
+        // Cập nhật phiên đăng nhập hiện tại
+        auth.password = newPass;
+        localStorage.setItem("authUser", JSON.stringify(auth));
+
+        // --- THÔNG BÁO THÀNH CÔNG ---
+        showToast("Chúc mừng! Bạn đã đổi mật khẩu thành công.", "success");
+
+        // 4. Đăng xuất và điều hướng
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("authUser");
+
+        setTimeout(() => {
+          window.location.href = "./login.html";
+        }, 1200);
+      } catch (error) {
+        console.error("Lỗi khi lưu mật khẩu:", error);
+        alert("Đã xảy ra lỗi hệ thống khi lưu mật khẩu mới!");
       }
-
-      alert("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
-
-      // Đăng xuất
-      localStorage.removeItem("isLoggedIn");
-      window.location.href = "./login.html";
     };
   }
 
-  // --- ĐÓNG MỞ MODAL (SỬA LỖI TẠI ĐÂY) ---
+  // --- ĐÓNG MỞ MODAL ---
   const openInfoBtn = document.getElementById("openInfoModal");
   const openPassBtn = document.getElementById("openPassModal");
-  const passModal = document.getElementById("passModal");
 
   if (openInfoBtn) {
     openInfoBtn.onclick = () => {
@@ -209,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (openPassBtn) {
     openPassBtn.onclick = () => {
-      editPassForm.reset(); // Xóa trắng form mật khẩu cũ
+      editPassForm.reset();
       passModal.style.display = "block";
     };
   }
@@ -217,20 +266,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // Đóng Modal khi nhấn nút X hoặc nút Cancel
   document.querySelectorAll(".close-btn, .btn-cancel").forEach((btn) => {
     btn.onclick = () => {
-      infoModal.style.display = "none";
-      passModal.style.display = "none";
+      if (infoModal) infoModal.style.display = "none";
+      if (passModal) passModal.style.display = "none";
     };
   });
 
-  // Đóng khi click ra ngoài vùng xám
   window.onclick = (e) => {
     if (e.target === infoModal) infoModal.style.display = "none";
     if (e.target === passModal) passModal.style.display = "none";
   };
 
-  // Lắng nghe storage
+  // Lắng nghe storage để cập nhật tiền realtime
   window.addEventListener("storage", (e) => {
-    if (e.key === "monthlyCategories" || e.key === "monthlyBudgets") {
+    if (
+      e.key.includes("monthlyCategories") ||
+      e.key.includes("monthlyBudgets")
+    ) {
       updateFinancialStatus();
     }
   });

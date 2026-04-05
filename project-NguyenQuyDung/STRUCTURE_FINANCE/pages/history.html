@@ -107,24 +107,26 @@
         </div>
 
         <div class="card form-container">
-          <input type="text" placeholder="Số tiền" class="input-field" />
-          <select class="input-field">
+          <input id="amountInput" type="text" placeholder="Số tiền" class="input-field" />
+          <select id="categorySelect" class="input-field">
             <option value="">Danh mục chi tiêu</option>
           </select>
-          <input type="text" placeholder="Ghi chú" class="input-field" />
-          <button class="btn-add">Thêm</button>
+          <input id="noteInput" type="text" placeholder="Ghi chú" class="input-field" />
+          <button id="addTransactionBtn" class="btn-add">Thêm</button>
         </div>
 
         <div class="card history-card">
           <div class="history-header">
             <h3 class="history-title">🧾 Lịch sử giao dịch (theo tháng)</h3>
             <div class="history-actions">
-              <select class="small-select">
-                <option>Sắp xếp theo giá</option>
+              <select class="small-select" id="sortSelect">
+                <option value="none">Sắp xếp theo giá</option>
+                <option value="desc">Giảm dần</option>
+                <option value="asc">Tăng dần</option>
               </select>
               <div class="search-box">
-                <input type="text" placeholder="Tìm nội dung" />
-                <button class="btn-search">
+                <input id="searchInput" type="text" placeholder="Tìm nội dung" />
+                <button class="btn-search" id="searchBtn">
                   <svg
                     width="16"
                     height="16"
@@ -151,80 +153,34 @@
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="text-center">1</td>
-                <td>Tiền đi chơi</td>
-                <td>2.000 $</td>
-                <td>Đi chơi sapa</td>
-                <td class="text-center">
-                  <button class="btn-icon">
-                    <img src="../assets/icons/Vector (13).png" alt="" />
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">2</td>
-                <td>Tiền đi học</td>
-                <td>1.500 $</td>
-                <td>Học online</td>
-                <td class="text-center">
-                  <button class="btn-icon">
-                    <img src="../assets/icons/Vector (13).png" alt="" />
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">3</td>
-                <td>Tiền cà phê</td>
-                <td>1.500 $</td>
-                <td>Đi uống nước</td>
-                <td class="text-center">
-                  <button class="btn-icon">
-                    <img src="../assets/icons/Vector (13).png" alt="" />
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">4</td>
-                <td>Tiền cho con</td>
-                <td>1.500 $</td>
-                <td>Mua bỉm sữa</td>
-                <td class="text-center">
-                  <button class="btn-icon">
-                    <img src="../assets/icons/Vector (13).png" alt="" />
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">5</td>
-                <td>Tiền ăn</td>
-                <td>1.500 $</td>
-                <td>Ăn trưa</td>
-                <td class="text-center">
-                  <button class="btn-icon">
-                    <img src="../assets/icons/Vector (13).png" alt="" />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
+            <tbody id="historyTableBody"></tbody>
           </table>
 
-          <div class="pagination">
-            <button class="page-item">
-              <img src="../assets/images/arrow left.png" alt="" />
-            </button>
-            <button class="page-item">1</button>
-            <button class="page-item">2</button>
-            <button class="page-item active">3</button>
-            <button class="page-item">4</button>
-            <button class="page-item">5</button>
-            <button class="page-item">6</button>
-            <button class="page-item">7</button>
-            <button class="page-item">
-              <img src="../assets/images/arrow right.png" alt="" />
-            </button>
+          <div class="pagination" id="pagination"></div>
+        </div>
+
+        <div class="card stats-card">
+          <div class="history-header">
+            <h3 class="history-title">📈 Thống kê chi tiêu theo tháng</h3>
+            <div class="history-actions">
+              <select class="small-select" id="monthStatusFilter">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="achieved">Đạt</option>
+                <option value="notAchieved">Không đạt</option>
+              </select>
+            </div>
           </div>
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th>Tháng</th>
+                <th>Ngân sách</th>
+                <th>Chi tiêu</th>
+                <th class="text-center">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="statsTableBody"></tbody>
+          </table>
         </div>
       </main>
       <div class="warning-card">

@@ -96,8 +96,20 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    users.push({ email, password: pass });
+    const newUser = {
+      id: Date.now(),
+      email,
+      password: pass,
+      fullName: "",
+      phone: "",
+      gender: null,
+    };
+
+    users.push(newUser);
     saveUsers(users);
+
+    // Tự động set authUser để chuyển sang trạng thái đăng nhập cho user này (nếu cần)
+    localStorage.setItem("authUser", JSON.stringify(newUser));
 
     successMsg.style.display = "block";
 

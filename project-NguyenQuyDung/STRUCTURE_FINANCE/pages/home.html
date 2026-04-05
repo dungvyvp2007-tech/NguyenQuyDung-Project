@@ -18,8 +18,12 @@
       <div class="header-right">
         <div class="account-dropdown" id="accountDropdown">
           <p class="account-btn">
-            Tài khoản 
-            <img id="accountToggle" src="../assets/images/Vector (1).png" alt="arrow" />
+            Tài khoản
+            <img
+              id="accountToggle"
+              src="../assets/images/Vector (1).png"
+              alt="arrow"
+            />
           </p>
           <div id="logoutMenu" class="logout-menu hidden">
             <button id="logoutBtn" class="logout-btn">Logout</button>
@@ -30,17 +34,26 @@
 
     <div class="layout-container">
       <div class="menu-container">
-        <button class="menu-btn solid" onclick="window.location.href='home.html'">
+        <button
+          class="menu-btn solid"
+          onclick="window.location.href = 'home.html'"
+        >
           <img src="../assets/images/Vector (4).png" alt="" />
           <span class="text">Information</span>
         </button>
 
-        <button class="menu-btn outline" onclick="window.location.href='category.html'">
+        <button
+          class="menu-btn outline"
+          onclick="window.location.href = 'category.html'"
+        >
           <img src="../assets/images/Vector (5).png" alt="" />
           <span class="text">Category</span>
         </button>
 
-        <button class="menu-btn outline" onclick="window.location.href='history.html'">
+        <button
+          class="menu-btn outline"
+          onclick="window.location.href = 'history.html'"
+        >
           <img src="../assets/images/Vector (6).png" alt="" />
           <span class="text">History</span>
         </button>
@@ -69,10 +82,26 @@
             <input type="number" id="budgetInput" placeholder="VD: 50000000" />
             <button id="saveBudgetBtn">Lưu</button>
           </p>
-          <div id="budgetWarning" style="color: red; margin-top: 10px; display: none; font-weight: bold;">
+          <div
+            id="budgetWarning"
+            style="
+              color: red;
+              margin-top: 10px;
+              display: none;
+              font-weight: bold;
+            "
+          >
             ⚠️ Vui lòng nhập mức tiền chi tiêu!
           </div>
-          <div id="budgetSuccess" style="color: green; margin-top: 10px; display: none; font-weight: bold;">
+          <div
+            id="budgetSuccess"
+            style="
+              color: green;
+              margin-top: 10px;
+              display: none;
+              font-weight: bold;
+            "
+          >
             ✓ Lưu ngân sách thành công!
           </div>
         </div>
@@ -80,15 +109,19 @@
         <h1>Quản Lý Thông tin cá nhân</h1>
         <form id="mainProfileForm">
           <div class="input1">
-            <label>Name <span class="times">*</span></label><br />
+            <label>Name <span class="times">*</span></label
+            ><br />
             <input type="text" id="mainName" readonly /><br />
-            <label>Phone <span class="times">*</span></label><br />
+            <label>Phone <span class="times">*</span></label
+            ><br />
             <input type="tel" id="mainPhone" readonly /><br />
           </div>
           <div class="input2">
-            <label>Email <span class="times">*</span></label><br />
+            <label>Email <span class="times">*</span></label
+            ><br />
             <input type="email" id="mainEmail" readonly /><br />
-            <label>Gender <span class="times">*</span></label><br />
+            <label>Gender <span class="times">*</span></label
+            ><br />
             <input type="text" id="mainGender" readonly /><br />
           </div>
         </form>
@@ -127,7 +160,9 @@
             </select>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+            <button type="button" class="btn-cancel" id="cancelBtn">
+              Cancel
+            </button>
             <button type="submit" class="btn-save">Save</button>
           </div>
         </form>
@@ -154,13 +189,16 @@
             <input type="password" id="confirmPass" required />
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-cancel" id="cancelPassBtn">Cancel</button>
+            <button type="button" class="btn-cancel" id="cancelPassBtn">
+              Cancel
+            </button>
             <button type="submit" class="btn-save">Save</button>
           </div>
         </form>
       </div>
     </div>
 
+    <div id="toast" class="toast hidden"></div>
     <script src="../js/home.js"></script>
   </body>
 </html>

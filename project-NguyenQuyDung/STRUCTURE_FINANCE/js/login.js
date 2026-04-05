@@ -18,16 +18,16 @@ document.addEventListener("DOMContentLoaded", () => {
     errorElement.classList.remove("show");
   }
 
-  function checkAuth(email, password) {
+  function findUser(email, password) {
     const usersData = localStorage.getItem("users");
-    if (!usersData) return false;
+    if (!usersData) return null;
     try {
       const users = JSON.parse(usersData);
-      return users.some(
+      return users.find(
         (user) => user.email === email && user.password === password,
       );
     } catch {
-      return false;
+      return null;
     }
   }
 
@@ -53,12 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!valid) return;
 
-    if (!checkAuth(email, password)) {
+    const user = findUser(email, password);
+    if (!user) {
       showError(passwordInput, errorPassword, "Email hoặc mật khẩu không đúng");
       return;
     }
 
     localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("authUser", JSON.stringify(user));
     successMessage.textContent = "Sign In Successfully";
     successMessage.classList.add("show");
 
