@@ -8,7 +8,7 @@ body {
     background: #F2F2F2;
 }
 .section {
-    width: 600px;
+    width: 650px;
     margin: 0 auto;
 }
 .menu-container {
@@ -142,46 +142,6 @@ body {
 
 .header img {
     cursor: pointer;
-}
-
-/* SIDEBAR */
-nav {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position:fixed;
-    top: 80px;
-    left: 20px;
-    width: 220px;
-    padding: 15px;
-    border-radius: 12px;
-}
-nav div{
-  width: 100%;              
-  height: 40px;
-  margin-bottom: 20px;
-  border: 1px solid #4338CA;
-  border-radius: 10px;
-  background-color: white;
-}
-
-
-nav p {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 400;
-    padding-left: 20px;
-}
-
-nav img {
-    width: 18px;
-    display: flex;
-    justify-content: left;
 }
 
 /* active menu */
@@ -459,4 +419,147 @@ form {
     background-color: #4338CA;
     color: white;
     border: none;
+}
+
+/* --- RESPONSIVE SETTINGS --- */
+
+/* 1. Màn hình Tablet (Dưới 1024px) */
+@media (max-width: 1024px) {
+    /* Gỡ bỏ thuộc tính fixed để nội dung không bị menu đè */
+    .menu-container {
+        position: static !important;
+        width: 100% !important;
+        max-width: 650px;
+        margin: 0 auto 20px auto !important;
+        flex-direction: row !important; /* Dàn hàng ngang */
+        display: flex !important;
+        gap: 12px !important;
+        padding: 0 !important;
+    }
+
+    .menu-btn{
+        flex: 1;
+        min-width: 140px;
+        margin-bottom: 0 !important; /* Bỏ margin bottom của nav div cũ */
+        height: auto !important;
+    }
+
+    .layout-container {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .section {
+        width: 100% !important;
+        max-width: 650px;
+    }
+}
+
+/* 2. Màn hình Mobile (Dưới 768px) */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 15px;
+        justify-content: space-between;
+    }
+
+    .header p{
+        font-size: 14px;
+    }
+
+    .header-right span {
+        display: none; /* Ẩn tên user để tiết kiệm không gian */
+    }
+
+    /* Form chuyển thành 1 cột dọc */
+    form {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .input1, .input2 {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+
+    .input1 label, .input2 label {
+        margin-bottom: 5px; /* Sửa lại khoảng cách nhãn */
+    }
+
+    /* Hai nút bấm chính bên dưới */
+    .button1 {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .button1 button {
+        width: 100%;
+    }
+
+    /* Modal (Cửa sổ chỉnh sửa) */
+    .modal-content {
+        width: 90% !important;
+        margin: 15% auto;
+        padding: 15px;
+    }
+
+    .modal-footer {
+        width: 100% !important;
+        justify-content: center;
+        padding-top: 10px;
+    }
+}
+
+/* 3. Màn hình điện thoại nhỏ (Dưới 480px) */
+@media (max-width: 480px) {
+    .menu-container {
+        display: grid !important;
+        /* Chia 2 cột bằng nhau tuyệt đối */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important;
+        position: static !important;
+        width: 100% !important;
+    }
+
+    /* Đảm bảo tất cả các nút (bao gồm History) chỉ chiếm 1 cột */
+    .menu-btn {
+        grid-column: span 1 !important; 
+        width: 100% !important;
+        min-width: unset !important;
+        padding: 10px 5px !important;
+        margin-bottom: 0 !important;
+        height: 45px !important; /* Cố định chiều cao cho đều nhau */
+    }
+
+    .menu-btn .text {
+        font-size: 13px !important;
+        text-align: center;
+    }
+
+    .section1 {
+        padding: 15px;
+        font-size: 14px;
+        line-height: 24px;
+    }
+
+    h1 {
+        font-size: 18px;
+        line-height: 35px;
+    }
+
+    .section2, .section3, .section4 {
+        padding: 15px;
+    }
+
+    #money {
+        font-size: 20px;
+    }
+
+    /* Toast (Thông báo) */
+    .toast {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+        min-width: unset;
+    }
 }

@@ -3,30 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <script>
-      // Kiểm tra ngay lập tức trước khi render giao diện
+    <script>
       if (localStorage.getItem("isLoggedIn") !== "true") {
         window.location.href = "./login.html";
       }
     </script>
     <title>Tài chính cá nhân K25_Rikkei</title>
     <link rel="stylesheet" href="../css/history.css" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
   </head>
   <body>
     <div class="header">
-      <div class="header-left">
-        <span>📒 Tài Chính Cá Nhân K25_Rikkei</span>
-      </div>
+      <p>📒 Tài Chính Cá Nhân K25_Rikkei</p>
       <div class="header-right">
         <div class="account-dropdown" id="accountDropdown">
           <p class="account-btn">
@@ -64,60 +51,54 @@
 
         <button
           class="menu-btn solid"
-          onclick="window.location.href = 'history.html'"
+          onclick="window.location.href = 'history_new.html'"
         >
           <img src="../assets/images/Vector (12).png" alt="" />
           <span class="text">History</span>
         </button>
       </div>
 
-      <main class="content">
-        <div class="banner">
+      <div class="section">
+        <div class="section1">
           <h2>🎯 Kiểm soát chi tiêu thông minh</h2>
-          <p>Theo dõi ngân sách và thu chi hàng tháng dễ dàng</p>
+          <p>Theo dõi ngân sách và thu chi hằng tháng dễ dàng</p>
         </div>
 
-        <h1 class="page-title">📊 Quản Lý Tài Chính Cá Nhân</h1>
+        <h1>📊 Quản Lý Tài Chính Cá Nhân</h1>
 
-        <div class="card text-center">
-          <p class="text-gray">Số tiền còn lại</p>
-          <p class="balance-money">0 VND</p>
+        <div class="section2">
+          <p>Số tiền còn lại</p>
+          <p id="money">0 VND</p>
         </div>
 
-        <div class="card text-center month-selector">
-          <p>
-            📅 Chọn tháng:
-            <span class="date-badge">
-              September 2025
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </span>
-          </p>
+        <div class="section3">
+          <p>📅 Chọn tháng: <input type="month" id="monthPicker" /></p>
         </div>
 
-        <div class="card form-container">
-          <input id="amountInput" type="text" placeholder="Số tiền" class="input-field" />
-          <select id="categorySelect" class="input-field">
-            <option value="">Danh mục chi tiêu</option>
-          </select>
-          <input id="noteInput" type="text" placeholder="Ghi chú" class="input-field" />
-          <button id="addTransactionBtn" class="btn-add">Thêm</button>
+        <div class="section4">
+          <div class="section4-title">
+            <span>💼</span>
+            <p>Thêm giao dịch</p>
+          </div>
+          <div class="section4-form">
+            <input type="text" id="amountInput" placeholder="Số tiền" />
+
+            <select id="categorySelect">
+              <option value="">Danh mục chi tiêu</option>
+            </select>
+
+            <input type="text" id="noteInput" placeholder="Ghi chú" />
+
+            <button id="addTransactionBtn">Thêm</button>
+          </div>
         </div>
 
-        <div class="card history-card">
+        <div class="section4">
+          <div class="section4-title">
+            <span>🧾</span>
+            <p>Lịch sử giao dịch (theo tháng)</p>
+          </div>
           <div class="history-header">
-            <h3 class="history-title">🧾 Lịch sử giao dịch (theo tháng)</h3>
             <div class="history-actions">
               <select class="small-select" id="sortSelect">
                 <option value="none">Sắp xếp theo giá</option>
@@ -125,24 +106,15 @@
                 <option value="asc">Tăng dần</option>
               </select>
               <div class="search-box">
-                <input id="searchInput" type="text" placeholder="Tìm nội dung" />
-                <button class="btn-search" id="searchBtn">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </button>
+                <input
+                  id="searchInput"
+                  type="text"
+                  placeholder="Tìm nội dung"
+                />
+                <button class="btn-search" id="searchBtn">🔍</button>
               </div>
             </div>
           </div>
-
           <table class="history-table">
             <thead>
               <tr>
@@ -155,13 +127,14 @@
             </thead>
             <tbody id="historyTableBody"></tbody>
           </table>
-
           <div class="pagination" id="pagination"></div>
         </div>
-
-        <div class="card stats-card">
+        <div class="section4">
+          <div class="section4-title">
+            <span>📈</span>
+            <p>Thống kê chi tiêu theo tháng</p>
+          </div>
           <div class="history-header">
-            <h3 class="history-title">📈 Thống kê chi tiêu theo tháng</h3>
             <div class="history-actions">
               <select class="small-select" id="monthStatusFilter">
                 <option value="all">Tất cả trạng thái</option>
@@ -182,20 +155,10 @@
             <tbody id="statsTableBody"></tbody>
           </table>
         </div>
-      </main>
-      <div class="warning-card">
-        <div class="warning-icon">
-          <img src="../assets/images/Vector.png" alt="" />
-        </div>
-
-        <div class="warning-text">
-          <h3 class="warning-title">Cảnh báo tài chính</h3>
-          <p class="warning-desc">
-            Danh mục "tiền ăn" đã vượt giới hạn: 1,060 / 1,000 $
-          </p>
-        </div>
       </div>
     </div>
+
+    <div id="toast" class="toast hidden"></div>
     <script src="../js/history.js"></script>
   </body>
 </html>

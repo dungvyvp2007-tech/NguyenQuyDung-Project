@@ -142,7 +142,7 @@ body {
 
 /* CONTENT */
 .section {
-    width: 600px;
+    width: 650px;
     margin: 0 auto;
 }
 /* Banner */
@@ -309,4 +309,113 @@ select option {
     line-height: 10px;
     gap: 5px;
     cursor: pointer;
+}
+
+/* --- RESPONSIVE SETTINGS --- */
+
+/* 1. Màn hình Tablet & Laptop nhỏ (Dưới 1024px) */
+@media (max-width: 1024px) {
+    .layout-container {
+        flex-direction: column; /* Đẩy menu lên trên nội dung */
+        align-items: center;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .menu-container {
+        position: static; /* Bỏ chế độ cố định bên trái */
+        width: 100%;
+        max-width: 650px;
+        flex-direction: row; /* Chuyển menu thành hàng ngang */
+        justify-content: center;
+        flex-wrap: wrap; /* Tự xuống hàng nếu thiếu chỗ */
+    }
+
+    .menu-btn {
+        flex: 1;
+        min-width: 150px;
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    .section {
+        width: 100%;
+        max-width: 650px;
+    }
+}
+
+/* 2. Màn hình Mobile (Dưới 768px) */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 15px;
+        justify-content: space-between;
+    }
+
+    .header p {
+        font-size: 14px;
+    }
+
+    /* Form thêm giao dịch chuyển thành cột dọc */
+    .section4-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .section4-form select,
+    .section4-form input,
+    .section4-form button {
+        width: 100% !important;
+        flex: none;
+    }
+
+    /* Lưới danh mục chuyển từ 3 cột thành 2 cột */
+    .category-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    h1 {
+        font-size: 18px;
+        line-height: 40px;
+    }
+}
+
+/* 3. Màn hình điện thoại nhỏ (Dưới 480px) */
+@media (max-width: 480px) {
+    .menu-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Chia 2 cột cho các nút menu */
+        gap: 8px;
+    }
+
+    .menu-btn {
+        min-width: unset;
+        padding: 8px;
+    }
+
+    .menu-btn .text {
+        font-size: 13px;
+    }
+
+    .icon {
+        width: 20px;
+        margin-right: 8px;
+    }
+
+    /* Lưới danh mục thành 1 cột duy nhất */
+    .category-container {
+        grid-template-columns: 1fr;
+    }
+
+    .section2, .section3, .section4 {
+        padding: 15px;
+    }
+
+    #money {
+        font-size: 20px;
+    }
+
+    .section3 input {
+        width: 100%;
+    }
 }

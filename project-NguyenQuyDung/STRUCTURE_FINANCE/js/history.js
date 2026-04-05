@@ -1,333 +1,394 @@
-const categories = [
-  { id: 1, name: "Tiền đi chơi", limit: 100000 },
-  { id: 2, name: "Tiền đi học", limit: 120000 },
-  { id: 3, name: "Tiền cà phê", limit: 80000 },
-  { id: 4, name: "Tiền cho con", limit: 150000 },
-  { id: 5, name: "Tiền ăn", limit: 90000 },
-  { id: 6, name: "Tiền xăng", limit: 110000 },
-];
+document.addEventListener("DOMContentLoaded", () => {
+  // --- HÀM HỖ TRỢ (UTILITIES) ---
+  const getStorageKey = (key) => {
+    const authUser = JSON.parse(localStorage.getItem("authUser"));
+    const userId = authUser ? authUser.id : "guest";
+    return `user_${userId}_${key}`;
+  };
 
-const monthlySummaries = [
-  { month: "September 2025", budget: 500000, spent: 420000 },
-  { month: "October 2025", budget: 600000, spent: 620000 },
-  { month: "November 2025", budget: 550000, spent: 490000 },
-  { month: "December 2025", budget: 650000, spent: 680000 },
-];
+  const showToast = (message, duration = 3000) => {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
 
-let transactions = [
-  { id: 1, createdDate: "2025-09-02", total: 150000, description: "Đi chơi sapa", categoryId: 1 },
-  { id: 2, createdDate: "2025-09-05", total: 120000, description: "Học online", categoryId: 2 },
-  { id: 3, createdDate: "2025-09-08", total: 90000, description: "Đi uống nước", categoryId: 3 },
-  { id: 4, createdDate: "2025-09-12", total: 160000, description: "Mua bỉm sữa", categoryId: 4 },
-  { id: 5, createdDate: "2025-09-18", total: 95000, description: "Ăn trưa", categoryId: 5 },
-  { id: 6, createdDate: "2025-10-02", total: 130000, description: "Đổ xăng", categoryId: 6 },
-  { id: 7, createdDate: "2025-10-08", total: 140000, description: "Đi cafe cùng bạn", categoryId: 3 },
-  { id: 8, createdDate: "2025-10-14", total: 155000, description: "Mua sách", categoryId: 2 },
-  { id: 9, createdDate: "2025-10-20", total: 200000, description: "Tổ chức sinh nhật", categoryId: 1 },
-  { id: 10, createdDate: "2025-10-28", total: 87000, description: "Ăn tối gia đình", categoryId: 5 },
-];
+    // Thêm icon tùy theo nội dung message
+    let icon = "⚠️"; // Mặc định là cảnh báo
+    if (message.includes("thành công")) icon = "✅";
+    if (message.includes("Vượt hạn mức")) icon = "🚫";
 
-const state = {
-  currentPage: 1,
-  rowsPerPage: 5,
-  searchTerm: "",
-  sortDirection: "none",
-  monthFilter: "all",
-};
+    toast.innerHTML = `<span>${icon}</span> ${message}`; // Dùng innerHTML để hiện icon
 
-function formatMoney(value) {
-  return value.toLocaleString("vi-VN") + " ₫";
-}
+    toast.classList.remove("hidden");
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.classList.add("hidden"), 300);
+    }, duration);
+  };
 
-function getCategoryById(id) {
-  return categories.find((item) => item.id === id) || { name: "Khác", limit: 0 };
-}
+  const formatMoney = (value) => Number(value).toLocaleString("vi-VN") + " VND";
 
-function renderCategoryOptions() {
-  const categorySelect = document.getElementById("categorySelect");
-  if (!categorySelect) return;
-  categorySelect.innerHTML = "<option value=''>Danh mục chi tiêu</option>";
-  categories.forEach((category) => {
-    const option = document.createElement("option");
-    option.value = category.id;
-    option.textContent = category.name;
-    categorySelect.appendChild(option);
-  });
-}
-
-function getFilteredTransactions() {
-  const filtered = transactions.filter((transaction) => {
-    const category = getCategoryById(transaction.categoryId).name;
-    const searchText = state.searchTerm.trim().toLowerCase();
-    if (!searchText) return true;
+  const getCategoryById = (id) => {
+    const categories =
+      JSON.parse(localStorage.getItem(getStorageKey("categories"))) || [];
     return (
-      category.toLowerCase().includes(searchText) ||
-      transaction.description.toLowerCase().includes(searchText)
+      categories.find((c) => c.id == id) || { name: "Không xác định", id: 0 }
     );
-  });
-
-  if (state.sortDirection === "asc") {
-    filtered.sort((a, b) => a.total - b.total);
-  } else if (state.sortDirection === "desc") {
-    filtered.sort((a, b) => b.total - a.total);
-  }
-
-  return filtered;
-}
-
-function renderHistoryTable() {
-  const tableBody = document.getElementById("historyTableBody");
-  const pagination = document.getElementById("pagination");
-  if (!tableBody || !pagination) return;
-
-  const filtered = getFilteredTransactions();
-  const totalRows = filtered.length;
-  const pageCount = Math.max(1, Math.ceil(totalRows / state.rowsPerPage));
-  if (state.currentPage > pageCount) state.currentPage = pageCount;
-
-  const startIndex = (state.currentPage - 1) * state.rowsPerPage;
-  const visibleRows = filtered.slice(startIndex, startIndex + state.rowsPerPage);
-
-  tableBody.innerHTML = "";
-  if (visibleRows.length === 0) {
-    const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td class="text-center" colspan="5">Không có giao dịch phù hợp.</td>`;
-    tableBody.appendChild(emptyRow);
-  } else {
-    visibleRows.forEach((transaction, index) => {
-      const category = getCategoryById(transaction.categoryId);
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="text-center">${startIndex + index + 1}</td>
-        <td>${category.name}</td>
-        <td>${formatMoney(transaction.total)}</td>
-        <td>${transaction.description}</td>
-        <td class="text-center">
-          <button class="btn-icon btn-delete" data-id="${transaction.id}" title="Xóa giao dịch">
-            <img src="../assets/icons/Vector (13).png" alt="Xóa" />
-          </button>
-        </td>
-      `;
-      tableBody.appendChild(row);
-    });
-  }
-
-  renderPagination(pageCount);
-  updateWarningCard();
-}
-
-function renderPagination(pageCount) {
-  const pagination = document.getElementById("pagination");
-  if (!pagination) return;
-  pagination.innerHTML = "";
-
-  const createButton = (content, page, disabled = false, active = false) => {
-    const button = document.createElement("button");
-    button.className = "page-item" + (active ? " active" : "");
-    button.disabled = disabled;
-    button.innerHTML = content;
-    button.addEventListener("click", () => {
-      state.currentPage = page;
-      renderHistoryTable();
-    });
-    return button;
   };
 
-  pagination.appendChild(createButton("<", Math.max(1, state.currentPage - 1), state.currentPage === 1));
-
-  for (let i = 1; i <= pageCount; i += 1) {
-    pagination.appendChild(createButton(i, i, false, i === state.currentPage));
-  }
-
-  pagination.appendChild(createButton(">", Math.min(pageCount, state.currentPage + 1), state.currentPage === pageCount));
-}
-
-function renderMonthlyStats() {
-  const statsBody = document.getElementById("statsTableBody");
-  if (!statsBody) return;
-
-  const filteredStats = monthlySummaries.filter((monthData) => {
-    if (state.monthFilter === "achieved") {
-      return monthData.spent <= monthData.budget;
-    }
-    if (state.monthFilter === "notAchieved") {
-      return monthData.spent > monthData.budget;
-    }
-    return true;
-  });
-
-  statsBody.innerHTML = "";
-
-  if (filteredStats.length === 0) {
-    const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="4" class="text-center">Không có tháng phù hợp.</td>`;
-    statsBody.appendChild(emptyRow);
-    return;
-  }
-
-  filteredStats.forEach((monthData) => {
-    const achieved = monthData.spent <= monthData.budget;
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${monthData.month}</td>
-      <td>${formatMoney(monthData.budget)}</td>
-      <td>${formatMoney(monthData.spent)}</td>
-      <td class="text-center"><span class="status-badge ${achieved ? "badge-achieved" : "badge-not-achieved"}">${achieved ? "Đạt" : "Không đạt"}</span></td>
-    `;
-    statsBody.appendChild(row);
-  });
-}
-
-function updateWarningCard() {
-  const warningCard = document.querySelector(".warning-card");
-  const warningDesc = document.querySelector(".warning-desc");
-  if (!warningCard || !warningDesc) return;
-
-  const exceededTransaction = transactions.find((transaction) => {
-    const category = getCategoryById(transaction.categoryId);
-    return category.limit > 0 && transaction.total > category.limit;
-  });
-
-  if (exceededTransaction) {
-    const category = getCategoryById(exceededTransaction.categoryId);
-    warningDesc.textContent = `Giao dịch "${exceededTransaction.description}" vượt giới hạn ${category.name}: ${formatMoney(exceededTransaction.total)} / ${formatMoney(category.limit)}`;
-    warningCard.classList.remove("hidden");
-    return;
-  }
-
-  const exceededMonth = monthlySummaries.find((monthData) => monthData.spent > monthData.budget);
-  if (exceededMonth) {
-    warningDesc.textContent = `Tháng ${exceededMonth.month} đã vượt ngân sách: ${formatMoney(exceededMonth.spent)} / ${formatMoney(exceededMonth.budget)}`;
-    warningCard.classList.remove("hidden");
-    return;
-  }
-
-  warningCard.classList.add("hidden");
-}
-
-function handleSearch() {
-  const input = document.getElementById("searchInput");
-  if (!input) return;
-  state.searchTerm = input.value;
-  state.currentPage = 1;
-  renderHistoryTable();
-}
-
-function handleSort() {
-  const sortSelect = document.getElementById("sortSelect");
-  if (!sortSelect) return;
-  state.sortDirection = sortSelect.value;
-  state.currentPage = 1;
-  renderHistoryTable();
-}
-
-function handleMonthFilter() {
-  const filterSelect = document.getElementById("monthStatusFilter");
-  if (!filterSelect) return;
-  state.monthFilter = filterSelect.value;
-  renderMonthlyStats();
-}
-
-function handleDeleteTransaction(event) {
-  const button = event.target.closest(".btn-delete");
-  if (!button) return;
-
-  const id = Number(button.dataset.id);
-  if (!id) return;
-
-  const confirmDelete = confirm("Bạn có chắc muốn xóa giao dịch này?");
-  if (!confirmDelete) return;
-
-  transactions = transactions.filter((transaction) => transaction.id !== id);
-  renderHistoryTable();
-}
-
-function handleAddTransaction() {
-  const amountInput = document.getElementById("amountInput");
+  // --- DOM ELEMENTS ---
+  const monthPicker = document.getElementById("monthPicker");
+  const moneyDisplay = document.getElementById("money");
   const categorySelect = document.getElementById("categorySelect");
+  const amountInput = document.getElementById("amountInput");
   const noteInput = document.getElementById("noteInput");
-
-  if (!amountInput || !categorySelect || !noteInput) return;
-
-  const total = Number(amountInput.value.replace(/[^0-9]/g, ""));
-  const categoryId = Number(categorySelect.value);
-  const description = noteInput.value.trim();
-
-  if (!total || !categoryId || !description) {
-    alert("Vui lòng nhập đầy đủ số tiền, danh mục và ghi chú.");
-    return;
-  }
-
-  const newTransaction = {
-    id: Date.now(),
-    createdDate: new Date().toISOString().slice(0, 10),
-    total,
-    description,
-    categoryId,
-  };
-
-  transactions.unshift(newTransaction);
-  amountInput.value = "";
-  categorySelect.value = "";
-  noteInput.value = "";
-  state.currentPage = 1;
-  renderHistoryTable();
-}
-
-function initHistoryPage() {
-  const accountBtn = document.querySelector(".account-btn");
-  const logoutMenu = document.getElementById("logoutMenu");
-  const logoutBtn = document.getElementById("logoutBtn");
+  const addTransactionBtn = document.getElementById("addTransactionBtn");
+  const historyTableBody = document.getElementById("historyTableBody");
   const searchInput = document.getElementById("searchInput");
   const searchBtn = document.getElementById("searchBtn");
   const sortSelect = document.getElementById("sortSelect");
-  const monthFilter = document.getElementById("monthStatusFilter");
-  const addBtn = document.getElementById("addTransactionBtn");
-  const historyTable = document.querySelector(".history-table");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const accountBtn = document.querySelector(".account-btn");
+  const logoutMenu = document.getElementById("logoutMenu");
+  const statsTableBody = document.getElementById("statsTableBody");
+  const paginationContainer = document.getElementById("pagination");
+  const monthStatusFilter = document.getElementById("monthStatusFilter");
 
-  if (accountBtn && logoutMenu && logoutBtn) {
-    accountBtn.addEventListener("click", () => {
+  // --- TRẠNG THÁI (STATE) ---
+  let state = {
+    currentPage: 1,
+    rowsPerPage: 5,
+    searchTerm: "",
+    sortDirection: "none",
+  };
+
+  if (!monthPicker.value) {
+    monthPicker.value = new Date().toISOString().slice(0, 7);
+  }
+
+  // --- LOGIC GIAO DỊCH ---
+  const getTransactionsByMonth = (month) => {
+    const monthKey = `${month}-30`;
+    const monthlyData =
+      JSON.parse(localStorage.getItem(getStorageKey("monthlyTransactions"))) ||
+      [];
+    const monthEntry = monthlyData.find((item) => item.month === monthKey);
+    return monthEntry ? monthEntry.transactions || [] : [];
+  };
+
+  const saveTransactions = (month, transactions) => {
+    const monthKey = `${month}-30`;
+    const storageKey = getStorageKey("monthlyTransactions");
+    let monthlyData = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+    const index = monthlyData.findIndex((item) => item.month === monthKey);
+    if (index !== -1) {
+      monthlyData[index].transactions = transactions;
+    } else {
+      monthlyData.push({ month: monthKey, transactions });
+    }
+    localStorage.setItem(storageKey, JSON.stringify(monthlyData));
+  };
+
+  const updateFinancialStatus = () => {
+    const month = monthPicker.value;
+    const budgets =
+      JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || {};
+    const totalBudget = parseFloat(budgets[month] || 0);
+    const transactions = getTransactionsByMonth(month);
+    const totalSpent = transactions.reduce(
+      (sum, t) => sum + Number(t.total || 0),
+      0,
+    );
+    const remaining = totalBudget - totalSpent;
+
+    if (moneyDisplay) {
+      moneyDisplay.textContent = formatMoney(remaining);
+      moneyDisplay.style.color = remaining < 0 ? "#EF4444" : "#22C55E";
+    }
+  };
+
+  // --- RENDER ---
+  const renderHistoryTable = () => {
+    const month = monthPicker.value;
+    let transactions = getTransactionsByMonth(month);
+
+    let filtered = transactions.filter((t) => {
+      const categoryName = getCategoryById(t.categoryId).name.toLowerCase();
+      const note = (t.description || "").toLowerCase();
+      const search = state.searchTerm.toLowerCase();
+      return categoryName.includes(search) || note.includes(search);
+    });
+
+    if (state.sortDirection === "asc") {
+      filtered.sort((a, b) => a.total - b.total);
+    } else if (state.sortDirection === "desc") {
+      filtered.sort((a, b) => b.total - a.total);
+    }
+
+    const totalRows = filtered.length;
+    const maxPage = Math.ceil(totalRows / state.rowsPerPage) || 1;
+    if (state.currentPage > maxPage) state.currentPage = maxPage;
+
+    const startIndex = (state.currentPage - 1) * state.rowsPerPage;
+    const visibleRows = filtered.slice(
+      startIndex,
+      startIndex + state.rowsPerPage,
+    );
+
+    historyTableBody.innerHTML = "";
+    if (visibleRows.length === 0) {
+      historyTableBody.innerHTML = `<tr><td colspan="5" class="text-center">Không có giao dịch phù hợp.</td></tr>`;
+    } else {
+      visibleRows.forEach((t, index) => {
+        const category = getCategoryById(t.categoryId);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="text-center">${startIndex + index + 1}</td>
+          <td>${category.name}</td>
+          <td>${formatMoney(t.total)}</td>
+          <td>${t.description || ""}</td>
+          <td class="text-center">
+            <button class="btn-icon btn-delete" data-id="${t.id}"><img src="../assets/icons/Vector (13).png" alt=""></button>
+          </td>
+        `;
+        historyTableBody.appendChild(row);
+      });
+    }
+    renderPagination(totalRows);
+    renderStatsTable();
+    updateFinancialStatus();
+  };
+
+  const renderCategoryOptions = () => {
+    const categories =
+      JSON.parse(localStorage.getItem(getStorageKey("categories"))) || [];
+    categorySelect.innerHTML = "<option value=''>Danh mục chi tiêu</option>";
+    categories.forEach((cat) => {
+      const option = document.createElement("option");
+      option.value = cat.id;
+      option.textContent = cat.name;
+      categorySelect.appendChild(option);
+    });
+  };
+  // --- HÀM RENDER PHÂN TRANG ---
+  const renderPagination = (totalItems) => {
+    const totalPages = Math.ceil(totalItems / state.rowsPerPage) || 1;
+    if (!paginationContainer) return;
+
+    paginationContainer.innerHTML = "";
+
+    // Nút Quay lại (Back)
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "page-item";
+    prevBtn.innerHTML = `<img src="../assets/images/arrow left.png" alt="">`;
+    prevBtn.disabled = state.currentPage === 1;
+    prevBtn.onclick = () => {
+      state.currentPage--;
+      renderHistoryTable();
+    };
+    paginationContainer.appendChild(prevBtn);
+
+    // Các số trang
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = `page-item ${state.currentPage === i ? "active" : ""}`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => {
+        state.currentPage = i;
+        renderHistoryTable();
+      };
+      paginationContainer.appendChild(pageBtn);
+    }
+
+    // Nút Tiếp theo (Next)
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "page-item";
+    nextBtn.innerHTML = `<img src="../assets/images/arrow right.png" alt="">`;
+    nextBtn.disabled = state.currentPage === totalPages;
+    nextBtn.onclick = () => {
+      state.currentPage++;
+      renderHistoryTable();
+    };
+    paginationContainer.appendChild(nextBtn);
+  };
+
+  // --- HÀM RENDER BẢNG THỐNG KÊ CHI TIÊU ---
+  const renderStatsTable = () => {
+    const budgets =
+      JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || {};
+    const monthlyData =
+      JSON.parse(localStorage.getItem(getStorageKey("monthlyTransactions"))) ||
+      [];
+    const filterValue = monthStatusFilter ? monthStatusFilter.value : "all";
+
+    // Lấy danh sách các tháng từ cả Budget và Transactions
+    const allMonths = [
+      ...new Set([
+        ...Object.keys(budgets),
+        ...monthlyData.map((d) => d.month.replace("-30", "")),
+      ]),
+    ];
+
+    statsTableBody.innerHTML = "";
+
+    // Sắp xếp tháng mới nhất lên đầu
+    allMonths
+      .sort()
+      .reverse()
+      .forEach((m) => {
+        const budget = parseFloat(budgets[m] || 0);
+        const transactions = getTransactionsByMonth(m);
+        const totalSpent = transactions.reduce(
+          (sum, t) => sum + Number(t.total),
+          0,
+        );
+
+        const isAchieved = totalSpent <= budget && budget > 0;
+        const statusText = isAchieved ? "Đạt" : "Không đạt";
+        const statusClass = isAchieved
+          ? "badge-achieved"
+          : "badge-not-achieved";
+
+        // Lọc theo trạng thái
+        if (filterValue === "achieved" && !isAchieved) return;
+        if (filterValue === "notAchieved" && isAchieved) return;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${m}</td>
+        <td>${formatMoney(budget)}</td>
+        <td>${formatMoney(totalSpent)}</td>
+        <td class="text-center">
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </td>
+      `;
+        statsTableBody.appendChild(row);
+      });
+  };
+
+  // --- XỬ LÝ SỰ KIỆN (EVENTS) ---
+
+  // 1. Thêm giao dịch (CÓ KIỂM TRA HẠN MỨC DANH MỤC)
+  addTransactionBtn.onclick = () => {
+    const amount = parseFloat(amountInput.value);
+    const categoryId = categorySelect.value;
+    const note = noteInput.value.trim();
+    const month = monthPicker.value;
+    const monthKey = `${month}-30`;
+
+    if (!amount || amount <= 0 || !categoryId) {
+      showToast("Vui lòng nhập đủ số tiền và danh mục!");
+      return;
+    }
+
+    // --- KIỂM TRA GIỚI HẠN TỪ CATEGORY.JS ---
+    const monthlyCategories =
+      JSON.parse(localStorage.getItem(getStorageKey("monthlyCategories"))) ||
+      [];
+    const currentMonthCat = monthlyCategories.find(
+      (item) => item.month === monthKey,
+    );
+
+    if (!currentMonthCat) {
+      showToast("Vui lòng thiết lập danh mục chi tiêu cho tháng này trước!");
+      return;
+    }
+
+    const catConfig = currentMonthCat.categories.find(
+      (c) => c.categoryId == categoryId,
+    );
+    if (!catConfig) {
+      showToast("Danh mục này chưa được cấp ngân sách trong tháng!");
+      return;
+    }
+
+    const limit = parseFloat(catConfig.budget);
+    let transactions = getTransactionsByMonth(month);
+
+    // Tính tổng đã tiêu của danh mục này
+    const alreadySpent = transactions
+      .filter((t) => t.categoryId == categoryId)
+      .reduce((sum, t) => sum + Number(t.total), 0);
+
+    if (alreadySpent + amount > limit) {
+      const remaining = limit - alreadySpent;
+      showToast(
+        `Vượt hạn mức! Bạn chỉ còn được chi thêm ${formatMoney(remaining)} cho mục này.`,
+      );
+      amountInput.focus();
+      return; // Chặn thêm giao dịch
+    }
+
+    // --- LƯU GIAO DỊCH NẾU HỢP LỆ ---
+    const newTransaction = {
+      id: Date.now(),
+      categoryId: categoryId,
+      total: amount,
+      description: note,
+    };
+
+    transactions.push(newTransaction);
+    saveTransactions(month, transactions);
+
+    amountInput.value = "";
+    noteInput.value = "";
+    showToast("Đã thêm giao dịch thành công!");
+    renderHistoryTable();
+  };
+
+  // 2. Xóa giao dịch
+  historyTableBody.onclick = (e) => {
+    if (e.target.closest(".btn-delete")) {
+      if (!confirm("Bạn có chắc muốn xóa giao dịch này?")) return;
+      const id = e.target.closest(".btn-delete").dataset.id;
+      const month = monthPicker.value;
+      let transactions = getTransactionsByMonth(month);
+      transactions = transactions.filter((t) => t.id != id);
+      saveTransactions(month, transactions);
+      renderHistoryTable();
+    }
+  };
+
+  // 3. Các sự kiện Filter/Search
+  searchBtn.onclick = () => {
+    state.searchTerm = searchInput.value.trim();
+    state.currentPage = 1;
+    renderHistoryTable();
+  };
+
+  sortSelect.onchange = (e) => {
+    state.sortDirection = e.target.value;
+    renderHistoryTable();
+  };
+
+  monthPicker.onchange = () => {
+    state.currentPage = 1;
+    renderHistoryTable();
+  };
+
+  // 4. Logout logic
+  if (accountBtn) {
+    accountBtn.onclick = (e) => {
+      e.stopPropagation();
       logoutMenu.classList.toggle("hidden");
-    });
+    };
+  }
+  document.addEventListener("click", () => logoutMenu?.classList.add("hidden"));
 
-    document.addEventListener("click", (event) => {
-      if (!event.target.closest(".account-dropdown")) {
-        logoutMenu.classList.add("hidden");
-      }
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      const confirmLogout = confirm("Bạn có chắc muốn đăng xuất không?");
-      if (confirmLogout) {
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      if (confirm("Bạn có chắc muốn đăng xuất?")) {
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("authUser");
         window.location.href = "./login.html";
       }
-    });
+    };
   }
 
   renderCategoryOptions();
   renderHistoryTable();
-  renderMonthlyStats();
-  updateWarningCard();
-
-  if (searchInput) {
-    searchInput.addEventListener("input", handleSearch);
+  // --- SỰ KIỆN LỌC TRẠNG THÁI THỐNG KÊ ---
+  if (monthStatusFilter) {
+    monthStatusFilter.onchange = renderStatsTable;
   }
-  if (searchBtn) {
-    searchBtn.addEventListener("click", handleSearch);
-  }
-  if (sortSelect) {
-    sortSelect.addEventListener("change", handleSort);
-  }
-  if (monthFilter) {
-    monthFilter.addEventListener("change", handleMonthFilter);
-  }
-  if (addBtn) {
-    addBtn.addEventListener("click", handleAddTransaction);
-  }
-  if (historyTable) {
-    historyTable.addEventListener("click", handleDeleteTransaction);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", initHistoryPage);
+});
