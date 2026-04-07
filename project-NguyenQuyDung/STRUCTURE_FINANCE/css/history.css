@@ -41,16 +41,80 @@ body {
     cursor: pointer;
 }
 
+/* Ghi đè lại logout-menu cũ */
 .logout-menu {
     position: absolute;
     right: 0;
-    top: 32px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    box-shadow: 0 5px 16px rgba(0,0,0,0.2);
+    top: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     z-index: 100;
-    padding: 6px;
+    min-width: 260px;
+    overflow: hidden; /* Để bo góc phần màu xám */
+    padding: 0; /* Xóa padding cũ */
+}
+
+/* Khối màu xám chứa tên và email */
+.user-info-box {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+    background-color: #E5E5E5; /* Màu xám giống ảnh mẫu */
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    overflow: hidden;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+#userNameDisplay {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+}
+
+#userEmailDisplay {
+    font-size: 13px;
+    color: #444;
+}
+
+.menu-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 0;
+}
+
+/* Nút Logout nằm dưới đường kẻ */
+.logout-item {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    color: #ef4444; /* Màu đỏ cho chữ Logout */
+    font-weight: 600;
+}
+
+.logout-item:hover {
+    background-color: #f9f9f9;
 }
 
 .logout-btn {
@@ -330,7 +394,6 @@ h1 {
     justify-content: center; /* Căn giữa nội dung bên trong button */
     width: 32px;
     height: 32px;
-    margin-left: -120px; /* Đảm bảo button nằm giữa ô td */
 }
 
 .btn-icon img {

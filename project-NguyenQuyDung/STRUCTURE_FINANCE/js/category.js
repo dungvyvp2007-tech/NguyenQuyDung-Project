@@ -1,4 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const updateAccountUI = () => {
+    try {
+      const authUser = JSON.parse(localStorage.getItem("authUser"));
+      const nameDisplay = document.getElementById("userNameDisplay");
+      const emailDisplay = document.getElementById("userEmailDisplay");
+
+      if (authUser && nameDisplay && emailDisplay) {
+        nameDisplay.textContent = authUser.fullName || "Người dùng";
+        emailDisplay.textContent = authUser.email || "";
+      }
+    } catch (e) {
+      console.error("Lỗi cập nhật UI tài khoản:", e);
+    }
+  };
+
+  // Gọi hàm ngay khi vừa vào trang
+  updateAccountUI();
+  // --- TOAST HỖ TRỢ THÔNG BÁO ---
+  const showToast = (message, type = "success", duration = 1800) => {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+
+    toast.classList.remove("hidden");
+    toast.classList.remove("success", "error");
+    toast.classList.add("show", type);
+    toast.textContent = message;
+
+    setTimeout(() => {
+      toast.classList.remove("show", type);
+      toast.classList.add("hidden");
+    }, duration);
+  };
   // --- KHAI BÁO BIẾN ---
   const monthPicker = document.getElementById("monthPicker");
   const categoryNameInput = document.getElementById("categoryNameInput");
@@ -40,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (accountBtn && logoutMenu) {
     accountBtn.onclick = (e) => {
       e.stopPropagation();
+
+      // Cập nhật lại thông tin mỗi khi mở menu (để tránh dữ liệu cũ)
+      updateAccountUI();
+
       logoutMenu.classList.toggle("hidden");
     };
     document.onclick = (e) => {
@@ -57,7 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
         () => {
           localStorage.removeItem("isLoggedIn");
           localStorage.removeItem("authUser");
-          window.location.href = "./login.html";
+          showToast("⚠️ Đang đăng xuất ...");
+          setTimeout(() => {
+            window.location.href = "./login.html";
+          }, 1000);
         },
       );
     };
@@ -202,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             renderCategories(month);
             updateRemainingMoney(month);
+            showToast("✅ Xóa danh mục thành công!", "success");
           }
           if (logoutConfirmModal) logoutConfirmModal.style.display = "none";
           currentConfirmAction = null;
@@ -276,12 +316,14 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       editingCategoryId = null;
       addCategoryBtn.textContent = "Thêm danh mục";
+      showToast("✅ Cập nhật danh mục thành công!", "success");
     } else {
       monthEntry.categories.push({
         id: Date.now() + 2,
         categoryId: categoryId,
         budget: budget,
       });
+      showToast("✅ Thêm danh mục mới thành công!", "success");
     }
 
     localStorage.setItem(

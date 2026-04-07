@@ -30,8 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
   }
+const loginForm = document.getElementById("loginForm"); 
 
-  loginBtn.addEventListener("click", () => {
+loginForm.addEventListener("submit", (e) => { 
+    e.preventDefault();
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 

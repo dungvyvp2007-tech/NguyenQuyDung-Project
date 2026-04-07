@@ -1,3 +1,18 @@
+const updateAccountUI = () => {
+  try {
+    const authUser = JSON.parse(localStorage.getItem("authUser"));
+    const nameDisplay = document.getElementById("userNameDisplay");
+    const emailDisplay = document.getElementById("userEmailDisplay");
+
+    // CHỈ CHẠY KHI CÓ ĐỦ CẢ 3 THỨ
+    if (authUser && nameDisplay && emailDisplay) {
+      nameDisplay.textContent = authUser.fullName || "Người dùng";
+      emailDisplay.textContent = authUser.email || "";
+    }
+  } catch (e) {
+    console.error("Lỗi cập nhật UI tài khoản:", e);
+  }
+};
 // --- 1. CÁC HÀM HỖ TRỢ DÙNG CHUNG ---
 const getStorageKey = (key) => {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
@@ -9,7 +24,7 @@ const getAuthUser = () => JSON.parse(localStorage.getItem("authUser"));
 const getAllUsers = () => JSON.parse(localStorage.getItem("users")) || [];
 
 // --- TOAST HỖ TRỢ THÔNG BÁO ---
-const showToast = (message, type = "success", duration = 1800) => {
+const showToast = (message, type = "success", duration = 3000) => {
   const toast = document.getElementById("toast");
   if (!toast) return;
 
@@ -35,20 +50,29 @@ function updateFinancialStatus() {
   const selectedMonth = monthPicker.value;
   if (!selectedMonth) return;
 
-  const allBudgets = JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || [];
+  const allBudgets =
+    JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || [];
   const monthKey = `${selectedMonth}-30`;
 
   const currentBudgetObj = allBudgets.find((item) => item.month === monthKey);
-  const totalBudget = currentBudgetObj ? parseFloat(currentBudgetObj.budget || 0) : 0;
+  const totalBudget = currentBudgetObj
+    ? parseFloat(currentBudgetObj.budget || 0)
+    : 0;
 
   if (budgetInput) budgetInput.value = totalBudget > 0 ? totalBudget : "";
 
-  const allMonthlyCategories = JSON.parse(localStorage.getItem(getStorageKey("monthlyCategories"))) || [];
-  const monthEntry = allMonthlyCategories.find((item) => item.month === monthKey);
+  const allMonthlyCategories =
+    JSON.parse(localStorage.getItem(getStorageKey("monthlyCategories"))) || [];
+  const monthEntry = allMonthlyCategories.find(
+    (item) => item.month === monthKey,
+  );
 
   let totalSpent = 0;
   if (monthEntry && monthEntry.categories) {
-    totalSpent = monthEntry.categories.reduce((sum, item) => sum + parseFloat(item.budget || 0), 0);
+    totalSpent = monthEntry.categories.reduce(
+      (sum, item) => sum + parseFloat(item.budget || 0),
+      0,
+    );
   }
 
   const remaining = totalBudget - totalSpent;
@@ -57,21 +81,26 @@ function updateFinancialStatus() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // --- KHAI BÁO BIẾN MODAL ---
+  // 1. Cập nhật UI tài khoản ngay khi load
+  updateAccountUI();
+
+  // 2. KHAI BÁO BIẾN (Thêm kiểm tra tồn tại để tránh crash)
   const infoModal = document.getElementById("infoModal");
   const passModal = document.getElementById("passModal");
   const logoutConfirmModal = document.getElementById("logoutConfirmModal");
-  
-  const editInfoForm = document.getElementById("editInfoForm");
-  const editPassForm = document.getElementById("editPassForm");
 
-  // --- KHỞI TẠO THÔNG TIN NGƯỜI DÙNG ---
+  // 3. KHỞI TẠO THÔNG TIN NGƯỜI DÙNG (An toàn hơn)
   const authUser = getAuthUser();
   if (authUser) {
-    document.getElementById("mainName").value = authUser.fullName || "";
-    document.getElementById("mainEmail").value = authUser.email || "";
-    document.getElementById("mainPhone").value = authUser.phone || "";
-    document.getElementById("mainGender").value = authUser.gender ? "Male" : "Female";
+    const mainName = document.getElementById("mainName");
+    const mainEmail = document.getElementById("mainEmail");
+    const mainPhone = document.getElementById("mainPhone");
+    const mainGender = document.getElementById("mainGender");
+
+    if (mainName) mainName.value = authUser.fullName || "";
+    if (mainEmail) mainEmail.value = authUser.email || "";
+    if (mainPhone) mainPhone.value = authUser.phone || "";
+    if (mainGender) mainGender.value = authUser.gender ? "Male" : "Female";
   }
 
   // --- KHỞI TẠO THÁNG VÀ TIỀN ---
@@ -87,9 +116,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (accountBtn && logoutMenu) {
     accountBtn.onclick = (e) => {
       e.stopPropagation();
+
+      updateAccountUI(); // <--- GỌI LẠI Ở ĐÂY LẦN NỮA KHI CLICK
+
       logoutMenu.classList.toggle("hidden");
     };
-    document.addEventListener("click", () => logoutMenu.classList.add("hidden"));
+    document.addEventListener("click", () =>
+      logoutMenu.classList.add("hidden"),
+    );
   }
 
   // --- XỬ LÝ LOGOUT VỚI CUSTOM MODAL ---
@@ -108,7 +142,10 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmLogoutBtn.onclick = () => {
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("authUser");
-      window.location.href = "./login.html";
+      showToast("⚠️ Đang đăng xuất ...");
+      setTimeout(() => {
+        window.location.href = "./login.html";
+      }, 1000);
     };
   }
 
@@ -125,8 +162,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       document.getElementById("budgetWarning").style.display = "none";
-      let allBudgets = JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || [];
-      const existingIndex = allBudgets.findIndex((item) => item.month === monthKey);
+      let allBudgets =
+        JSON.parse(localStorage.getItem(getStorageKey("monthlyBudgets"))) || [];
+      const existingIndex = allBudgets.findIndex(
+        (item) => item.month === monthKey,
+      );
 
       if (existingIndex !== -1) {
         allBudgets[existingIndex].budget = amount;
@@ -140,9 +180,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      localStorage.setItem(getStorageKey("monthlyBudgets"), JSON.stringify(allBudgets));
+      localStorage.setItem(
+        getStorageKey("monthlyBudgets"),
+        JSON.stringify(allBudgets),
+      );
       document.getElementById("budgetSuccess").style.display = "block";
-      setTimeout(() => { document.getElementById("budgetSuccess").style.display = "none"; }, 2000);
+      setTimeout(() => {
+        document.getElementById("budgetSuccess").style.display = "none";
+      }, 2000);
       updateFinancialStatus();
     };
   }
@@ -158,23 +203,47 @@ document.addEventListener("DOMContentLoaded", () => {
       const auth = getAuthUser();
       const users = getAllUsers();
 
+      // Lấy giá trị email mới từ form
+      const newEmail = document.getElementById("editEmail").value.trim();
+
+      // 1. Kiểm tra email đã tồn tại ở tài khoản khác chưa
+      const isEmailExists = users.some(
+        (u) =>
+          u.email.toLowerCase() === newEmail.toLowerCase() && u.id !== auth.id,
+      );
+
+      if (isEmailExists) {
+        showToast(
+          "⚠️ Email này đã được sử dụng bởi một tài khoản khác!",
+          "error",
+        );
+        return; // Dừng thực thi, không cho lưu
+      }
+
+      // 2. Nếu không trùng thì tiến hành cập nhật dữ liệu
       const updatedData = {
         fullName: document.getElementById("editName").value.trim(),
-        email: document.getElementById("editEmail").value.trim(),
+        email: newEmail,
         phone: document.getElementById("editPhone").value.trim(),
         gender: document.getElementById("editGender").value === "Male",
       };
 
-      localStorage.setItem("authUser", JSON.stringify({ ...auth, ...updatedData }));
+      // Cập nhật localStorage cho authUser
+      localStorage.setItem(
+        "authUser",
+        JSON.stringify({ ...auth, ...updatedData }),
+      );
+
+      // Cập nhật trong danh sách users
       const userIndex = users.findIndex((u) => u.id === auth.id);
       if (userIndex !== -1) {
         users[userIndex] = { ...users[userIndex], ...updatedData };
         localStorage.setItem("users", JSON.stringify(users));
       }
 
-      showToast("Cập nhật thông tin thành công!", "success");
+      showToast("✅ Cập nhật thông tin thành công!", "success");
       infoModal.style.display = "none";
-      setTimeout(() => location.reload(), 1200);
+      setTimeout(() => location.reload(), 1000);
     };
   }
 
@@ -191,25 +260,31 @@ document.addEventListener("DOMContentLoaded", () => {
       const confirmPass = document.getElementById("confirmPass").value;
 
       if (currentPassInput !== users[userIndex].password) {
-        alert("Mật khẩu cũ không chính xác!");
+        showToast("⚠️ Mật khẩu cũ không chính xác!", "error");
         return;
       }
       if (newPass !== confirmPass) {
-        alert("Mật khẩu xác nhận không khớp!");
+        showToast("⚠️ Mật khẩu xác nhận không khớp!", "error");
         return;
       }
       if (newPass.length < 6) {
-        alert("Mật khẩu phải từ 6 ký tự!");
+        showToast("⚠️ Mật khẩu phải từ 6 ký tự!", "error");
         return;
       }
 
+      // Nếu mọi thứ hợp lệ
       users[userIndex].password = newPass;
       localStorage.setItem("users", JSON.stringify(users));
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("authUser");
 
-      showToast("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.", "success");
-      setTimeout(() => { window.location.href = "./login.html"; }, 1200);
+      showToast(
+        "✅ Đổi mật khẩu thành công! Vui lòng đăng nhập lại.",
+        "success",
+      );
+      setTimeout(() => {
+        window.location.href = "./login.html";
+      }, 1500);
     };
   }
 
@@ -223,7 +298,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("editName").value = auth.fullName || "";
       document.getElementById("editEmail").value = auth.email || "";
       document.getElementById("editPhone").value = auth.phone || "";
-      document.getElementById("editGender").value = auth.gender ? "Male" : "Female";
+      document.getElementById("editGender").value = auth.gender
+        ? "Male"
+        : "Female";
       infoModal.style.display = "block";
     };
   }
@@ -248,12 +325,16 @@ document.addEventListener("DOMContentLoaded", () => {
   window.onclick = (e) => {
     if (e.target === infoModal) infoModal.style.display = "none";
     if (e.target === passModal) passModal.style.display = "none";
-    if (e.target === logoutConfirmModal) logoutConfirmModal.style.display = "none";
+    if (e.target === logoutConfirmModal)
+      logoutConfirmModal.style.display = "none";
   };
 
   // Cập nhật tài chính realtime khi storage thay đổi
   window.addEventListener("storage", (e) => {
-    if (e.key.includes("monthlyCategories") || e.key.includes("monthlyBudgets")) {
+    if (
+      e.key.includes("monthlyCategories") ||
+      e.key.includes("monthlyBudgets")
+    ) {
       updateFinancialStatus();
     }
   });

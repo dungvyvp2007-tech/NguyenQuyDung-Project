@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/login.css" />
   </head>
   <body>
-    <div class="signInPage">
+    <form class="signInPage" id="loginForm">
       <h1><img src="../assets/icons/Heading 2 → 🔐 Đăng nhập.png" alt="" /></h1>
       <p id="successMessage" class="success-message"></p>
 
@@ -17,9 +17,9 @@
       <input type="password" id="passwordLogin" placeholder="Password..." />
       <p id="errorPassword" class="error-msg">Please enter your password ...</p>
 
-      <button type="button" id="loginBtn">Sign in</button>
+      <button type="submit" id="loginBtn">Sign in</button>
       <p>You don't have account ?<a href="./register.html">Sign Up Now</a></p>
-    </div>
+    </form>
     <script src="../js/login.js"></script>
   </body>
 </html>

@@ -1,4 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const updateAccountUI = () => {
+    try {
+      const authUser = JSON.parse(localStorage.getItem("authUser"));
+      const nameDisplay = document.getElementById("userNameDisplay");
+      const emailDisplay = document.getElementById("userEmailDisplay");
+
+      if (authUser && nameDisplay && emailDisplay) {
+        nameDisplay.textContent = authUser.fullName || "Người dùng";
+        emailDisplay.textContent = authUser.email || "";
+      }
+    } catch (e) {
+      console.error("Lỗi cập nhật thông tin tài khoản:", e);
+    }
+  };
+
+  // Gọi ngay khi load trang
+  updateAccountUI();
   // --- HÀM HỖ TRỢ (UTILITIES) ---
   const getStorageKey = (key) => {
     const authUser = JSON.parse(localStorage.getItem("authUser"));
@@ -172,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <td class="text-center">${startIndex + index + 1}</td>
             <td>${category.name}</td>
             <td>${formatMoney(t.total)}</td>
-            <td>${t.createdDate}</td> <td>${t.description || ""}</td>
+            <td>${t.description || ""}</td>
           <td class="text-center">
             <button class="btn-icon btn-delete" data-id="${t.id}"><img src="../assets/icons/Vector (13).png" alt=""></button>
           </td>
@@ -381,11 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = e.target.closest(".btn-delete").dataset.id;
       const month = monthPicker.value;
 
-      openConfirmModal("Bạn có chắc muốn xóa không?", "Xóa", () => {
+      openConfirmModal("Bạn có chắc muốn xóa giao dịch không?", "Xóa", () => {
         let transactions = getTransactionsByMonth(month);
         transactions = transactions.filter((t) => t.id != id);
         saveTransactions(month, transactions);
         renderHistoryTable();
+        showToast(" Đã xóa giao dịch thành công!");
         if (logoutConfirmModal) logoutConfirmModal.style.display = "none";
         currentConfirmAction = null;
       });
@@ -413,6 +431,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (accountBtn) {
     accountBtn.onclick = (e) => {
       e.stopPropagation();
+
+      // Luôn cập nhật lại thông tin mới nhất khi mở menu
+      updateAccountUI();
+
       logoutMenu.classList.toggle("hidden");
     };
   }
@@ -427,7 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
         () => {
           localStorage.removeItem("isLoggedIn");
           localStorage.removeItem("authUser");
-          window.location.href = "./login.html";
+          showToast(" Đang đăng xuất ...");
+          setTimeout(() => {
+            window.location.href = "./login.html";
+          }, 1000);
         },
       );
     };
